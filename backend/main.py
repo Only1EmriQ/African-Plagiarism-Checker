@@ -27,6 +27,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
+from fastapi.middleware.cors import CORSMiddleware
+# app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
 # Configure CORS middleware
 # This allows the frontend to communicate with the backend
 app.add_middleware(
@@ -116,10 +119,32 @@ async def health_check():
 
 
 @app.post("/check-plagiarism/")
-async def check_plagiarism(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
-) -> Dict[str, Any]:
+async def check_plagiarism(file: UploadFile = File(...)):
+    try:
+        # Read the content regardless of if it's a real file or a text blob
+        content = await file.read()
+        
+        # If it's bytes, decode it to string
+        if isinstance(content, bytes):
+            text_content = content.decode('utf-8', errors='ignore')
+        else:
+            text_content = content
+
+        # Check if the file is empty
+        if not text_content.strip():
+            return {"error": "The uploaded document or text is empty."}
+
+        # YOUR EXISTING NLP LOGIC HERE
+        # Example: similarity = model.calculate(text_content)
+        
+        return {
+            "similarity_score": 25, # Replace with your actual logic
+            "filename": file.filename,
+            "status": "success"
+        }
+    except Exception as e:
+        print(f"Error: {e}")
+        return {"error": str(e)}, 500
     """
     Check uploaded document for plagiarism against African Research Corpus.
     
