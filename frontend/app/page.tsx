@@ -67,10 +67,7 @@ export default function PlagiarismChecker() {
     }
   };
 
-  const mockMatches = [
-    { text: "The impact of digital literacy on academic performance in Nigerian universities...", source: "https://academic-nigeria.edu/journals/01", match: "85%" },
-    { text: "Research methodologies in the sub-Saharan context require localized data sets...", source: "https://african-research-gate.org/paper/442", match: "92%" }
-  ];
+ 
 
   if (result) {
     return (
@@ -124,22 +121,34 @@ export default function PlagiarismChecker() {
                 </div>
               </div>
 
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-                <h3 className="text-lg font-bold text-slate-800 mb-6">Detailed Matches</h3>
-                <div className="space-y-6">
-                  {mockMatches.map((match, i) => (
-                    <div key={i} className="p-4 bg-slate-50 rounded-xl border-l-4 border-red-400">
-                      <p className="text-slate-700 italic mb-3">"{match.text}"</p>
-                      <div className="flex justify-between items-center">
-                        <a href={match.source} target="_blank" className="text-blue-600 text-xs flex items-center hover:underline">
-                          Source: {match.source} <ExternalLink className="w-3 h-3 ml-1" />
-                        </a>
-                        <span className="text-xs font-bold bg-red-100 text-red-600 px-2 py-1 rounded">{match.match} Match</span>
-                      </div>
-                    </div>
-                  ))}
+                      <div className="space-y-6">
+          {result.matches && result.matches.length > 0 ? (
+            result.matches.map((match: any, i: number) => (
+              <div key={i} className="p-4 bg-slate-50 rounded-xl border-l-4 border-red-400">
+                {/* Using match.text which now comes from CrossRef titles */}
+                <p className="text-slate-700 font-semibold mb-3">"{match.text}"</p>
+                <div className="flex justify-between items-center">
+                  <a 
+                    href={match.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-blue-600 text-xs flex items-center hover:underline"
+                  >
+                    Source: {match.source_name} <ExternalLink className="w-3 h-3 ml-1" />
+                  </a>
+                  {/* Displaying the real score calculated by the backend */}
+                  <span className="text-xs font-bold bg-red-100 text-red-600 px-2 py-1 rounded">
+                    {(match.score * 100).toFixed(0)}% Match
+                  </span>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="text-center py-10">
+              <p className="text-slate-400 italic text-sm">No external matches found. Content appears original.</p>
+            </div>
+          )}
+        </div>
             </div>
           </div>
         </div>
